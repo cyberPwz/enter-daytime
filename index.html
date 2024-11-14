@@ -59,37 +59,37 @@
 <div id="weekday-settings">
     <h3>曜日ごとのデフォルト時間を設定</h3>
     <label for="sunday-start">日曜日 開始時間:</label>
-    <input type="time" id="sunday-start">
+    <input type="time" id="sunday-start"><br>
     <label for="sunday-end">終了時間:</label>
     <input type="time" id="sunday-end"><br>
 
     <label for="monday-start">月曜日 開始時間:</label>
-    <input type="time" id="monday-start">
+    <input type="time" id="monday-start"><br>
     <label for="monday-end">終了時間:</label>
     <input type="time" id="monday-end"><br>
 
     <label for="tuesday-start">火曜日 開始時間:</label>
-    <input type="time" id="tuesday-start">
+    <input type="time" id="tuesday-start"><br>
     <label for="tuesday-end">終了時間:</label>
     <input type="time" id="tuesday-end"><br>
 
     <label for="wednesday-start">水曜日 開始時間:</label>
-    <input type="time" id="wednesday-start">
+    <input type="time" id="wednesday-start"><br>
     <label for="wednesday-end">終了時間:</label>
     <input type="time" id="wednesday-end"><br>
 
     <label for="thursday-start">木曜日 開始時間:</label>
-    <input type="time" id="thursday-start">
+    <input type="time" id="thursday-start"><br>
     <label for="thursday-end">終了時間:</label>
     <input type="time" id="thursday-end"><br>
 
     <label for="friday-start">金曜日 開始時間:</label>
-    <input type="time" id="friday-start">
+    <input type="time" id="friday-start"><br>
     <label for="friday-end">終了時間:</label>
     <input type="time" id="friday-end"><br>
 
     <label for="saturday-start">土曜日 開始時間:</label>
-    <input type="time" id="saturday-start">
+    <input type="time" id="saturday-start"><br>
     <label for="saturday-end">終了時間:</label>
     <input type="time" id="saturday-end"><br>
 
@@ -163,7 +163,7 @@
                 timeInput.classList.add('time-field');
                 timeInput.innerHTML = `
                     <label for="${dateId}-start">${day}日(${weekday}) の時間を入力してください:</label><br>
-                    開始時間: <input type="time" id="${dateId}-start" value="${timeSchedule[weekday].start || ''}">
+                    開始時間: <input type="time" id="${dateId}-start" value="${timeSchedule[weekday].start || ''}"><br>
                     終了時間: <input type="time" id="${dateId}-end" value="${timeSchedule[weekday].end || ''}">
                     <br>
                 `;
