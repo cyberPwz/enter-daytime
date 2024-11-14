@@ -163,7 +163,8 @@
                 timeInput.classList.add('time-field');
                 timeInput.innerHTML = `
                     <label for="${dateId}-start">${day}日(${weekday}) の時間を入力してください:</label><br>
-                    開始時間: <input type="time" id="${dateId}-start" value="${timeSchedule[weekday].start || ''}"><br>
+                    開始時間: <input type="time" id="${dateId}-start" value="${timeSchedule[weekday].start || ''}">
+                    <br>
                     終了時間: <input type="time" id="${dateId}-end" value="${timeSchedule[weekday].end || ''}">
                     <br>
                 `;
