@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シフト送信用</title>
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .date-output {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        .time-input {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .time-field {
+            margin-bottom: 10px;
+        }
+        .copy-btn {
+            margin-top: 10px;
+        }
+        .save-btn {
+            margin-top: 20px; /* ここで間を空ける */
+            display: block; /* ボタンをブロック要素にする */
+        }
+        #weekday-settings {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>日付･時間をきれいにまとめます</h2>
+
+<input type="text" id="datePicker" placeholder="日付を選択してください">
+
+<div class="time-input" id="time-input"></div>
+
+<button onclick="displayFinalSchedule()">時間を表示する</button>
+
+<div class="date-output" id="output"></div>
+<button class="copy-btn" onclick="copyToClipboard()">コピーする</button>
+
+<h1></h1>
+
+<!-- デフォルト時間設定を下部に移動 -->
+<button onclick="toggleSettings()">デフォルト時間設定を表示/非表示</button>
+
+<div id="weekday-settings">
+    <h3>曜日ごとのデフォルト時間を設定</h3>
+    <label for="sunday-start">日曜日 開始時間:</label>
+    <input type="time" id="sunday-start">
+    <label for="sunday-end">終了時間:</label>
+    <input type="time" id="sunday-end"><br>
+
+    <label for="monday-start">月曜日 開始時間:</label>
+    <input type="time" id="monday-start">
+    <label for="monday-end">終了時間:</label>
+    <input type="time" id="monday-end"><br>
+
+    <label for="tuesday-start">火曜日 開始時間:</label>
+    <input type="time" id="tuesday-start">
+    <label for="tuesday-end">終了時間:</label>
+    <input type="time" id="tuesday-end"><br>
+
+    <label for="wednesday-start">水曜日 開始時間:</label>
+    <input type="time" id="wednesday-start">
+    <label for="wednesday-end">終了時間:</label>
+    <input type="time" id="wednesday-end"><br>
+
+    <label for="thursday-start">木曜日 開始時間:</label>
+    <input type="time" id="thursday-start">
+    <label for="thursday-end">終了時間:</label>
+    <input type="time" id="thursday-end"><br>
+
+    <label for="friday-start">金曜日 開始時間:</label>
+    <input type="time" id="friday-start">
+    <label for="friday-end">終了時間:</label>
+    <input type="time" id="friday-end"><br>
+
+    <label for="saturday-start">土曜日 開始時間:</label>
+    <input type="time" id="saturday-start">
+    <label for="saturday-end">終了時間:</label>
+    <input type="time" id="saturday-end"><br>
+
+    <button class="save-btn" onclick="saveDefaultTimes()">デフォルト時間を保存する</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+
+    // ローカルストレージからデフォルト時間を読み込む
+    function loadDefaultTimes() {
+        const savedTimes = localStorage.getItem('defaultTimes');
+        if (savedTimes) {
+            return JSON.parse(savedTimes);
+        } else {
+            return {
+                '日': { start: '10:00', end: '19:00' },
+                '月': { start: '', end: '' },
+                '火': { start: '13:45', end: '20:30' },
+                '水': { start: '', end: '' },
+                '木': { start: '', end: '' },
+                '金': { start: '17:15', end: '20:30' },
+                '土': { start: '10:00', end: '19:00' }
+            };
+        }
+    }
+
+    let timeSchedule = loadDefaultTimes();  // ローカルストレージから読み込む
+    let selectedDatesGlobal = [];
+
+    // デフォルトの時間をフォームに反映する
+    function updateFormWithDefaultTimes() {
+        document.getElementById('sunday-start').value = timeSchedule['日'].start;
+        document.getElementById('sunday-end').value = timeSchedule['日'].end;
+        document.getElementById('monday-start').value = timeSchedule['月'].start;
+        document.getElementById('monday-end').value = timeSchedule['月'].end;
+        document.getElementById('tuesday-start').value = timeSchedule['火'].start;
+        document.getElementById('tuesday-end').value = timeSchedule['火'].end;
+        document.getElementById('wednesday-start').value = timeSchedule['水'].start;
+        document.getElementById('wednesday-end').value = timeSchedule['水'].end;
+        document.getElementById('thursday-start').value = timeSchedule['木'].start;
+        document.getElementById('thursday-end').value = timeSchedule['木'].end;
+        document.getElementById('friday-start').value = timeSchedule['金'].start;
+        document.getElementById('friday-end').value = timeSchedule['金'].end;
+        document.getElementById('saturday-start').value = timeSchedule['土'].start;
+        document.getElementById('saturday-end').value = timeSchedule['土'].end;
+    }
+
+    // ページ読み込み時にデフォルト時間を反映
+    window.onload = function() {
+        updateFormWithDefaultTimes();
+    };
+
+    // Flatpickrを初期化して複数日付の選択を可能にする
+    flatpickr("#datePicker", {
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        onChange: function(selectedDates) {
+            selectedDatesGlobal = selectedDates;
+            const timeInputContainer = document.getElementById('time-input');
+            timeInputContainer.innerHTML = '';  // 以前の入力フィールドをクリア
+
+            selectedDates.sort((a, b) => a - b);
+
+            selectedDates.forEach(date => {
+                const day = date.getDate();
+                const weekday = weekdays[date.getDay()];
+                const dateId = `date-${day}-${weekday}`;
+                const timeInput = document.createElement('div');
+                timeInput.classList.add('time-field');
+                timeInput.innerHTML = `
+                    <label for="${dateId}-start">${day}日(${weekday}) の時間を入力してください:</label><br>
+                    開始時間: <input type="time" id="${dateId}-start" value="${timeSchedule[weekday].start || ''}">
+                    終了時間: <input type="time" id="${dateId}-end" value="${timeSchedule[weekday].end || ''}">
+                    <br>
+                `;
+                timeInputContainer.appendChild(timeInput);
+            });
+        }
+    });
+
+    function toggleSettings() {
+        const settings = document.getElementById('weekday-settings');
+        settings.style.display = settings.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function displayFinalSchedule() {
+        const output = document.getElementById('output');
+        const formattedDates = selectedDatesGlobal.map(date => {
+            const day = date.getDate();
+            const weekday = weekdays[date.getDay()];
+            const dateId = `date-${day}-${weekday}`;
+            const startTime = document.getElementById(`${dateId}-start`).value;
+            const endTime = document.getElementById(`${dateId}-end`).value;
+
+            if (startTime && endTime) {
+                return `${day}日(${weekday}) ${startTime}～${endTime}`;
+            } else {
+                return `${day}日(${weekday}) 時間が入力されていません`;
+            }
+        });
+
+        output.innerHTML = formattedDates.length > 0 ? formattedDates.join('<br>') : '日付が選択されていません';
+    }
+
+    // デフォルト時間をローカルストレージに保存する
+    function saveDefaultTimes() {
+        timeSchedule['日'].start = document.getElementById('sunday-start').value;
+        timeSchedule['日'].end = document.getElementById('sunday-end').value;
+        timeSchedule['月'].start = document.getElementById('monday-start').value;
+        timeSchedule['月'].end = document.getElementById('monday-end').value;
+        timeSchedule['火'].start = document.getElementById('tuesday-start').value;
+        timeSchedule['火'].end = document.getElementById('tuesday-end').value;
+        timeSchedule['水'].start = document.getElementById('wednesday-start').value;
+        timeSchedule['水'].end = document.getElementById('wednesday-end').value;
+        timeSchedule['木'].start = document.getElementById('thursday-start').value;
+        timeSchedule['木'].end = document.getElementById('thursday-end').value;
+        timeSchedule['金'].start = document.getElementById('friday-start').value;
+        timeSchedule['金'].end = document.getElementById('friday-end').value;
+        timeSchedule['土'].start = document.getElementById('saturday-start').value;
+        timeSchedule['土'].end = document.getElementById('saturday-end').value;
+
+        localStorage.setItem('defaultTimes', JSON.stringify(timeSchedule));
+        alert('デフォルト時間が保存されました');
+    }
+
+    // 出力されたテキストをコピーする関数
+    function copyToClipboard() {
+        const output = document.getElementById('output').innerText;
+        const tempInput = document.createElement('textarea');
+        tempInput.value = output;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert("テキストがクリップボードにコピーされました");
+    }
+</script>
+
+</body>
+</html>
